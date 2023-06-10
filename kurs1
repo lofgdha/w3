@@ -1,0 +1,108 @@
+import telebot
+from telebot import types
+#import requests
+
+
+
+bot = telebot.TeleBot("5853157541:AAEZhqfoHgDH1ZJQuBmAJxNL2Gfv-jAhds4")
+
+@bot.message_handler(commands = ['start','гандон'])
+def startms(message):
+
+    stmarkup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton('Наш Канал', url = 'https://t.me/Lomonosov_kurs')
+    btn2 = types.InlineKeyboardButton('FAQ', url = 'https://telegra.ph/FAQ-06-09-11')
+    btn3 = types.InlineKeyboardButton('Вызвать менеджера', callback_data= 'manager')
+    btn4 = types.InlineKeyboardButton('Товары', callback_data='product')
+    stmarkup.row(btn1,btn2,btn4)
+    stmarkup.row(btn3)
+
+
+    bot.send_message(message.chat.id,"Привет, друг!")
+    bot.send_message(message.chat.id,"Вот список моих команд:\n"
+                                     "\n"
+    "<b>-Наш Kанал</b> - в нашем канале вы сможете ознакомиться со всем актульным ассортиментом, обновлениями бота и курсов\n"
+    '<b>-FAQ</b> - информация о проекте\n'
+    '<b>-Товары</b> - все наши курсы, доступные для покупки, описание материала\n'
+    '<b>-Вызвать менеджера</b> - отправить обращение менеджеру по интересующим вопросам',
+                     parse_mode="html", reply_markup=stmarkup)
+
+
+
+
+@bot.callback_query_handler(func=lambda callback: True)
+def callback_message(callback):
+    global inv1link
+    mainbtn = types.InlineKeyboardButton('В главное меню', callback_data='menu')
+    if callback.data == 'manager':
+        obrmarkup = types.InlineKeyboardMarkup()
+        menumarkup = types.InlineKeyboardMarkup()
+        obrbtn = types.InlineKeyboardButton('Отправить обращение',callback_data='obrtxt')
+        obrmarkup.row(obrbtn)
+        menumarkup.row(mainbtn)
+        bot.send_message(callback.message.chat.id, 'Напишите свое обращение, проверьте его и нажмите на копку под измененным сообщением с вашим обращением', reply_markup=menumarkup)
+
+        @bot.message_handler()
+        def obr(message):
+            bot.send_message(message.chat.id,f'Ваше обращение:\n'
+                                             f'  \n'
+                                             f'"<i>{message.text}</i>"\n'
+                                             f'  \n'
+                                             f'Нажмите кнопку снизу чтобы отправить обращение',parse_mode="html",reply_markup=obrmarkup)
+    if callback.data == 'obrtxt':
+        bot.forward_message(chat_id='571023662',from_chat_id=callback.message.chat.id,message_id=callback.message.id-1)
+        bot.delete_message(callback.message.chat.id,callback.message.message_id)
+    if callback.data == 'product':
+        prdmenu = types.InlineKeyboardMarkup()
+        prdbtn1 = types.InlineKeyboardButton('1курс',callback_data='1kurs')
+        prdbtn2 = types.InlineKeyboardButton('2 курс', callback_data='2kurs')
+        prdback = types.InlineKeyboardButton('Назад',callback_data = 'menu')
+
+        prdmenu.row(prdbtn1, prdbtn2)
+        prdmenu.row(prdback)
+
+        bot.send_message(callback.message.chat.id, 'Вот список моих товаров, выбери подходящий тебе курс и читай подробнее о нем!'
+                         ,reply_markup=prdmenu)
+    if callback.data == 'menu':
+        stmarkup = get_stmarkup()
+        bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.message_id, text="Вот список моих команд:\n"
+                                                                                                             "\n"
+                                                                                                             "<b>-Наш Kанал</b> - в нашем канале вы сможете ознакомиться со всем актульным ассортиментом, обновлениями бота и курсов\n"
+                                                                                                             '<b>-FAQ</b> - информация о проекте\n'
+                                                                                                             '<b>-Товары</b> - все наши курсы, доступные для покупки, описание материала\n'
+                                                                                                             '<b>-Вызвать менеджера</b> - отправить обращение менеджеру по интересующим вопросам',
+                              parse_mode="html", reply_markup=stmarkup)
+        bot.delete_message(callback.message.chat.id,callback.message.message_id-1)
+    if callback.data == '1kurs':
+        buy1markup = types.InlineKeyboardMarkup()
+        buy1btn = types.InlineKeyboardButton('Купить',callback_data='buy1')
+        buy1markup.row(buy1btn)
+        bot.edit_message_text(chat_id=callback.message.chat.id,message_id=callback.message.message_id,text='1 курс!(Информация о нем)',reply_markup=buy1markup)
+    if callback.data == 'buy1':
+        opl1markup = types.InlineKeyboardMarkup()
+        inv1link = bot.export_chat_invite_link('-1001948053018')
+        opl1btn = types.InlineKeyboardButton('Оплатить', url = 'https://t.me/sdhfdfhge08utt')
+        inv1btn = types.InlineKeyboardButton('ссылка приглашение tmp',callback_data='inv1')
+        opl1markup.row(opl1btn,inv1btn)
+        bot.edit_message_text(chat_id=callback.message.chat.id,message_id=callback.message.message_id,text='Ссылка для оплаты:123123',reply_markup=opl1markup)
+    if callback.data == 'inv1':
+        bot.send_message(callback.message.chat.id,'111')
+
+
+
+
+
+
+def get_stmarkup():
+    stmarkup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton('Наш Канал', url='https://t.me/Lomonosov_kurs')
+    btn2 = types.InlineKeyboardButton('Info', callback_data='info')
+    btn3 = types.InlineKeyboardButton('Вызвать менеджера', callback_data='manager')
+    btn4 = types.InlineKeyboardButton('Товары', callback_data='product')
+    stmarkup.row(btn1, btn2, btn4)
+    stmarkup.row(btn3)
+    return stmarkup
+
+
+
+bot.polling(none_stop=True)
